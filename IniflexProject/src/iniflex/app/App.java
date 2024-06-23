@@ -1,8 +1,10 @@
 package iniflex.app;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -37,6 +39,42 @@ public class App {
                 agrupadosPorFuncao.forEach((funcao, funcs) -> {
                         System.out.println("Função: " + funcao);
                         funcs.forEach(f -> System.out.println(" - " + f.getNome()));
+                });
+        }
+
+        public void imprimirAniversariantes(List<Funcionario> funcionarios) {
+                funcionarios.stream()
+                                .filter(f -> f.getDataNascimento().getMonthValue() == 10
+                                                || f.getDataNascimento().getMonthValue() == 12)
+                                .forEach(f -> System.out.println(f.getNome() + " - " + f.getDataFormatada()));
+        }
+
+        public void imprimirFuncionarioMaiorIdade(List<Funcionario> funcionarios) {
+                funcionarios.stream()
+                                .min(Comparator.comparing(Funcionario::getDataNascimento))
+                                .ifPresent(f -> System.out.println("Nome: " + f.getNome() + ", Idade: " +
+                                                (LocalDate.now().getYear() - f.getDataNascimento().getYear())));
+        }
+
+        public void imprimirFuncionariosOrdemAlfabetica(List<Funcionario> funcionarios) {
+                funcionarios.stream()
+                                .sorted(Comparator.comparing(Funcionario::getNome))
+                                .forEach(f -> System.out.println(f.getNome()));
+        }
+
+        public void imprimirTotalSalarios(List<Funcionario> funcionarios) {
+                BigDecimal total = funcionarios.stream()
+                                .map(Funcionario::getSalario)
+                                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                System.out.println("Total dos salários: " + total);
+        }
+
+        public void imprimirSalariosMinimos(List<Funcionario> funcionarios) {
+                BigDecimal salarioMinimo = new BigDecimal("1212.00");
+                funcionarios.forEach(f -> {
+                        BigDecimal quantosSalariosMinimos = f.getSalario().divide(salarioMinimo, 2,
+                                        RoundingMode.HALF_UP);
+                        System.out.println(f.getNome() + " ganha " + quantosSalariosMinimos + " salários mínimos.");
                 });
         }
 
@@ -79,5 +117,15 @@ public class App {
                                 .collect(Collectors.groupingBy(Funcionario::getFuncao));
 
                 appInstance.imprimirAgrupadosPorFuncao(agrupadosPorFuncao);
+
+                appInstance.imprimirAniversariantes(funcionarios);
+
+                appInstance.imprimirFuncionarioMaiorIdade(funcionarios);
+
+                appInstance.imprimirFuncionariosOrdemAlfabetica(funcionarios);
+
+                appInstance.imprimirTotalSalarios(funcionarios);
+
+                appInstance.imprimirSalariosMinimos(funcionarios);
         }
 }
